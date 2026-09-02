@@ -38,7 +38,7 @@ function SettingsPage() {
   const [org, setOrg] = useState<Org>({});
 
   useEffect(() => {
-    if (data?.value) setOrg(data.value as Org);
+    if (data?.value) setOrg(data.value as unknown as Org);
   }, [data]);
 
   const save = useMutation({
