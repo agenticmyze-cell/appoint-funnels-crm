@@ -139,10 +139,10 @@ export const deleteClient = async (id: string) => {
   if (error) throw new Error(error.message);
 };
 
-export const upsertCampaign = async (row: TablesInsert<"campaigns">) =>
+export const upsertCampaign = async (row: TablesInsert<"campaigns">): Promise<Campaign> =>
   unwrap(await supabase.from("campaigns").upsert(row).select().single());
 
-export const updateCampaign = async (id: string, patch: TablesUpdate<"campaigns">) =>
+export const updateCampaign = async (id: string, patch: TablesUpdate<"campaigns">): Promise<Campaign> =>
   unwrap(await supabase.from("campaigns").update(patch).eq("id", id).select().single());
 
 export const deleteCampaign = async (id: string) => {
