@@ -12,7 +12,7 @@ export function ResultsProof({
 }: {
   clientName: string;
   screenshots: Screenshot[];
-  testimonial?: Testimonial;
+  testimonial?: Testimonial | undefined;
   totals: Totals;
 }) {
   const { open, node } = useLightbox();

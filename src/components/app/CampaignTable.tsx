@@ -20,10 +20,10 @@ export function CampaignTable({
   onDelete,
 }: {
   campaigns: Campaign[];
-  clients?: Client[];
-  showClient?: boolean;
-  onEdit?: (c: Campaign) => void;
-  onDelete?: (c: Campaign) => void;
+  clients?: Client[] | undefined;
+  showClient?: boolean | undefined;
+  onEdit?: ((c: Campaign) => void) | undefined;
+  onDelete?: ((c: Campaign) => void) | undefined;
 }) {
   const clientName = (id: string) => clients?.find((c) => c.id === id)?.name ?? "—";
 

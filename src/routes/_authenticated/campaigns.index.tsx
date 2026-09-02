@@ -146,8 +146,8 @@ function CampaignsPage() {
           {
             action: editing ? "update" : "create",
             entity_type: "campaign",
-            entity_id: saved.id,
-            entity_label: saved.name,
+            entity_id: saved?.id ?? null,
+            entity_label: saved?.name ?? String(values["name"]),
           },
         ]);
       }

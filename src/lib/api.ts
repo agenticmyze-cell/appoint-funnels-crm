@@ -27,7 +27,7 @@ export const listClients = async (): Promise<Client[]> =>
 export const getClient = async (id: string): Promise<Client> =>
   unwrap(await supabase.from("clients").select("*").eq("id", id).single());
 
-export const listCampaigns = async (clientId?: string): Promise<Campaign[]> => {
+export const listCampaigns = async (clientId?: string | undefined): Promise<Campaign[]> => {
   let q = supabase.from("campaigns").select("*").order("created_at", { ascending: false });
   if (clientId) q = q.eq("client_id", clientId);
   return unwrap(await q);
@@ -52,7 +52,7 @@ export const listDailyStats = async (campaignIds?: string[], sinceDays = 30): Pr
   return unwrap(await q);
 };
 
-export const listLeads = async (opts: { clientId?: string; campaignId?: string; limit?: number } = {}): Promise<Lead[]> => {
+export const listLeads = async (opts: { clientId?: string | undefined; campaignId?: string | undefined; limit?: number } = {}): Promise<Lead[]> => {
   let q = supabase.from("leads").select("*").order("created_at", { ascending: false });
   if (opts.clientId) q = q.eq("client_id", opts.clientId);
   if (opts.campaignId) q = q.eq("campaign_id", opts.campaignId);
@@ -62,7 +62,7 @@ export const listLeads = async (opts: { clientId?: string; campaignId?: string; 
 export const getLead = async (id: string): Promise<Lead> =>
   unwrap(await supabase.from("leads").select("*").eq("id", id).single());
 
-export const listReplies = async (opts: { clientId?: string; campaignId?: string } = {}): Promise<Reply[]> => {
+export const listReplies = async (opts: { clientId?: string | undefined; campaignId?: string } = {}): Promise<Reply[]> => {
   let q = supabase.from("replies").select("*").order("received_at", { ascending: false });
   if (opts.clientId) q = q.eq("client_id", opts.clientId);
   if (opts.campaignId) q = q.eq("campaign_id", opts.campaignId);
@@ -74,19 +74,19 @@ export const listReplyMessages = async (replyId: string): Promise<Tables<"reply_
     await supabase.from("reply_messages").select("*").eq("reply_id", replyId).order("sent_at"),
   );
 
-export const listOpportunities = async (clientId?: string): Promise<Opportunity[]> => {
+export const listOpportunities = async (clientId?: string | undefined): Promise<Opportunity[]> => {
   let q = supabase.from("opportunities").select("*").order("created_at", { ascending: false });
   if (clientId) q = q.eq("client_id", clientId);
   return unwrap(await q);
 };
 
-export const listTestimonials = async (clientId?: string): Promise<Testimonial[]> => {
+export const listTestimonials = async (clientId?: string | undefined): Promise<Testimonial[]> => {
   let q = supabase.from("testimonials").select("*").order("created_at", { ascending: false });
   if (clientId) q = q.eq("client_id", clientId);
   return unwrap(await q);
 };
 
-export const listScreenshots = async (clientId?: string): Promise<Screenshot[]> => {
+export const listScreenshots = async (clientId?: string | undefined): Promise<Screenshot[]> => {
   let q = supabase
     .from("screenshots")
     .select("*")
@@ -96,7 +96,7 @@ export const listScreenshots = async (clientId?: string): Promise<Screenshot[]> 
   return unwrap(await q);
 };
 
-export const listActivities = async (opts: { campaignId?: string; clientId?: string } = {}): Promise<Activity[]> => {
+export const listActivities = async (opts: { campaignId?: string | undefined; clientId?: string } = {}): Promise<Activity[]> => {
   let q = supabase.from("lead_activities").select("*").order("created_at", { ascending: false });
   if (opts.campaignId) q = q.eq("campaign_id", opts.campaignId);
   if (opts.clientId) q = q.eq("client_id", opts.clientId);
@@ -117,13 +117,13 @@ export const listNotifications = async (): Promise<Notification[]> =>
     await supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(50),
   );
 
-export const listMeetings = async (clientId?: string) => {
+export const listMeetings = async (clientId?: string | undefined) => {
   let q = supabase.from("meetings").select("*").order("scheduled_at", { ascending: false });
   if (clientId) q = q.eq("client_id", clientId);
   return unwrap(await q);
 };
 
-export const getSetting = async (key: string) =>
+export const getSetting = async (key: string): Promise<Tables<"settings"> | null> =>
   unwrap(await supabase.from("settings").select("*").eq("key", key).maybeSingle());
 
 /* ------------------------------ writes ------------------------------ */
