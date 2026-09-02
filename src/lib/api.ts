@@ -21,22 +21,22 @@ function unwrap<T>(res: { data: T | null; error: { message: string } | null }): 
 
 /* ------------------------------ reads ------------------------------ */
 
-export const listClients = async () =>
+export const listClients = async (): Promise<Client[]> =>
   unwrap(await supabase.from("clients").select("*").order("name"));
 
-export const getClient = async (id: string) =>
+export const getClient = async (id: string): Promise<Client> =>
   unwrap(await supabase.from("clients").select("*").eq("id", id).single());
 
-export const listCampaigns = async (clientId?: string) => {
+export const listCampaigns = async (clientId?: string): Promise<Campaign[]> => {
   let q = supabase.from("campaigns").select("*").order("created_at", { ascending: false });
   if (clientId) q = q.eq("client_id", clientId);
   return unwrap(await q);
 };
 
-export const getCampaign = async (id: string) =>
+export const getCampaign = async (id: string): Promise<Campaign> =>
   unwrap(await supabase.from("campaigns").select("*").eq("id", id).single());
 
-export const listSteps = async (campaignId: string) =>
+export const listSteps = async (campaignId: string): Promise<Step[]> =>
   unwrap(
     await supabase
       .from("campaign_steps")
@@ -45,48 +45,48 @@ export const listSteps = async (campaignId: string) =>
       .order("step_number"),
   );
 
-export const listDailyStats = async (campaignIds?: string[], sinceDays = 30) => {
+export const listDailyStats = async (campaignIds?: string[], sinceDays = 30): Promise<DailyStat[]> => {
   const since = new Date(Date.now() - sinceDays * 86400000).toISOString().slice(0, 10);
   let q = supabase.from("campaign_daily_stats").select("*").gte("day", since).order("day");
   if (campaignIds?.length) q = q.in("campaign_id", campaignIds);
   return unwrap(await q);
 };
 
-export const listLeads = async (opts: { clientId?: string; campaignId?: string; limit?: number } = {}) => {
+export const listLeads = async (opts: { clientId?: string; campaignId?: string; limit?: number } = {}): Promise<Lead[]> => {
   let q = supabase.from("leads").select("*").order("created_at", { ascending: false });
   if (opts.clientId) q = q.eq("client_id", opts.clientId);
   if (opts.campaignId) q = q.eq("campaign_id", opts.campaignId);
   return unwrap(await q.limit(opts.limit ?? 500));
 };
 
-export const getLead = async (id: string) =>
+export const getLead = async (id: string): Promise<Lead> =>
   unwrap(await supabase.from("leads").select("*").eq("id", id).single());
 
-export const listReplies = async (opts: { clientId?: string; campaignId?: string } = {}) => {
+export const listReplies = async (opts: { clientId?: string; campaignId?: string } = {}): Promise<Reply[]> => {
   let q = supabase.from("replies").select("*").order("received_at", { ascending: false });
   if (opts.clientId) q = q.eq("client_id", opts.clientId);
   if (opts.campaignId) q = q.eq("campaign_id", opts.campaignId);
   return unwrap(await q.limit(300));
 };
 
-export const listReplyMessages = async (replyId: string) =>
+export const listReplyMessages = async (replyId: string): Promise<Tables<"reply_messages">[]> =>
   unwrap(
     await supabase.from("reply_messages").select("*").eq("reply_id", replyId).order("sent_at"),
   );
 
-export const listOpportunities = async (clientId?: string) => {
+export const listOpportunities = async (clientId?: string): Promise<Opportunity[]> => {
   let q = supabase.from("opportunities").select("*").order("created_at", { ascending: false });
   if (clientId) q = q.eq("client_id", clientId);
   return unwrap(await q);
 };
 
-export const listTestimonials = async (clientId?: string) => {
+export const listTestimonials = async (clientId?: string): Promise<Testimonial[]> => {
   let q = supabase.from("testimonials").select("*").order("created_at", { ascending: false });
   if (clientId) q = q.eq("client_id", clientId);
   return unwrap(await q);
 };
 
-export const listScreenshots = async (clientId?: string) => {
+export const listScreenshots = async (clientId?: string): Promise<Screenshot[]> => {
   let q = supabase
     .from("screenshots")
     .select("*")
@@ -96,14 +96,14 @@ export const listScreenshots = async (clientId?: string) => {
   return unwrap(await q);
 };
 
-export const listActivities = async (opts: { campaignId?: string; clientId?: string } = {}) => {
+export const listActivities = async (opts: { campaignId?: string; clientId?: string } = {}): Promise<Activity[]> => {
   let q = supabase.from("lead_activities").select("*").order("created_at", { ascending: false });
   if (opts.campaignId) q = q.eq("campaign_id", opts.campaignId);
   if (opts.clientId) q = q.eq("client_id", opts.clientId);
   return unwrap(await q.limit(200));
 };
 
-export const listAuditLogs = async () =>
+export const listAuditLogs = async (): Promise<AuditLog[]> =>
   unwrap(
     await supabase
       .from("admin_activity_logs")
@@ -112,7 +112,7 @@ export const listAuditLogs = async () =>
       .limit(200),
   );
 
-export const listNotifications = async () =>
+export const listNotifications = async (): Promise<Notification[]> =>
   unwrap(
     await supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(50),
   );
@@ -228,7 +228,7 @@ export const markNotificationRead = async (id: string) => {
 export const saveSetting = async (key: string, value: Record<string, unknown>) => {
   const { error } = await supabase
     .from("settings")
-    .upsert({ key, value, updated_at: new Date().toISOString() });
+    .upsert({ key, value: value as never, updated_at: new Date().toISOString() });
   if (error) throw new Error(error.message);
 };
 

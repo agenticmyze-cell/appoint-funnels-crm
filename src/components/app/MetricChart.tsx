@@ -63,12 +63,21 @@ export function MetricChart({
   height?: number;
 }) {
   const data = useMemo(() => {
-    const map = new Map<string, Record<string, number> & { day: string }>();
+    type Row = {
+      day: string;
+      sent: number;
+      total_opens: number;
+      unique_opens: number;
+      total_replies: number;
+      total_clicks: number;
+      unique_clicks: number;
+      opportunities: number;
+    };
+    const map = new Map<string, Row>();
     for (const s of stats) {
       const key = bucket(s.day, grain);
-      const row =
-        map.get(key) ??
-        ({
+      const row: Row =
+        map.get(key) ?? {
           day: key,
           sent: 0,
           total_opens: 0,
@@ -77,7 +86,7 @@ export function MetricChart({
           total_clicks: 0,
           unique_clicks: 0,
           opportunities: 0,
-        } as Record<string, number> & { day: string });
+        };
       row.sent += s.sent;
       row.total_opens += s.total_opens;
       row.unique_opens += s.unique_opens;

@@ -33,7 +33,7 @@ export function GlobalSearch({
   });
   const { data: leads = [] } = useQuery({
     queryKey: ["leads", clientId],
-    queryFn: () => listLeads({ clientId: clientId ?? undefined, limit: 200 }),
+    queryFn: () => listLeads(clientId ? { clientId, limit: 200 } : { limit: 200 }),
     enabled: open,
   });
 
