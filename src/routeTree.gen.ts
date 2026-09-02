@@ -20,6 +20,7 @@ import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedOpportunitiesRouteImport } from './routes/_authenticated/opportunities'
 import { Route as AuthenticatedResultsRouteImport } from './routes/_authenticated/results'
 import { Route as AuthenticatedScreenshotsRouteImport } from './routes/_authenticated/screenshots'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedTestimonialsRouteImport } from './routes/_authenticated/testimonials'
 import { Route as AuthenticatedCampaignsIndexRouteImport } from './routes/_authenticated/campaigns.index'
 import { Route as AuthenticatedCampaignsIdRouteImport } from './routes/_authenticated/campaigns.$id'
@@ -82,6 +83,11 @@ const AuthenticatedScreenshotsRoute =
     path: '/screenshots',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTestimonialsRoute =
   AuthenticatedTestimonialsRouteImport.update({
     id: '/testimonials',
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/results': typeof AuthenticatedResultsRoute
   '/screenshots': typeof AuthenticatedScreenshotsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/testimonials': typeof AuthenticatedTestimonialsRoute
   '/campaigns/$id': typeof AuthenticatedCampaignsIdRoute
   '/clients/$id': typeof AuthenticatedClientsIdRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/results': typeof AuthenticatedResultsRoute
   '/screenshots': typeof AuthenticatedScreenshotsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/testimonials': typeof AuthenticatedTestimonialsRoute
   '/campaigns/$id': typeof AuthenticatedCampaignsIdRoute
   '/clients/$id': typeof AuthenticatedClientsIdRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/_authenticated/opportunities': typeof AuthenticatedOpportunitiesRoute
   '/_authenticated/results': typeof AuthenticatedResultsRoute
   '/_authenticated/screenshots': typeof AuthenticatedScreenshotsRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/testimonials': typeof AuthenticatedTestimonialsRoute
   '/_authenticated/campaigns/$id': typeof AuthenticatedCampaignsIdRoute
   '/_authenticated/clients/$id': typeof AuthenticatedClientsIdRoute
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/opportunities'
     | '/results'
     | '/screenshots'
+    | '/settings'
     | '/testimonials'
     | '/campaigns/$id'
     | '/clients/$id'
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | '/opportunities'
     | '/results'
     | '/screenshots'
+    | '/settings'
     | '/testimonials'
     | '/campaigns/$id'
     | '/clients/$id'
@@ -213,6 +224,7 @@ export interface FileRouteTypes {
     | '/_authenticated/opportunities'
     | '/_authenticated/results'
     | '/_authenticated/screenshots'
+    | '/_authenticated/settings'
     | '/_authenticated/testimonials'
     | '/_authenticated/campaigns/$id'
     | '/_authenticated/clients/$id'
@@ -305,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedScreenshotsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/testimonials': {
       id: '/_authenticated/testimonials'
       path: '/testimonials'
@@ -352,6 +371,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOpportunitiesRoute: typeof AuthenticatedOpportunitiesRoute
   AuthenticatedResultsRoute: typeof AuthenticatedResultsRoute
   AuthenticatedScreenshotsRoute: typeof AuthenticatedScreenshotsRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedTestimonialsRoute: typeof AuthenticatedTestimonialsRoute
   AuthenticatedCampaignsIdRoute: typeof AuthenticatedCampaignsIdRoute
   AuthenticatedClientsIdRoute: typeof AuthenticatedClientsIdRoute
@@ -368,6 +388,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOpportunitiesRoute: AuthenticatedOpportunitiesRoute,
   AuthenticatedResultsRoute: AuthenticatedResultsRoute,
   AuthenticatedScreenshotsRoute: AuthenticatedScreenshotsRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedTestimonialsRoute: AuthenticatedTestimonialsRoute,
   AuthenticatedCampaignsIdRoute: AuthenticatedCampaignsIdRoute,
   AuthenticatedClientsIdRoute: AuthenticatedClientsIdRoute,
