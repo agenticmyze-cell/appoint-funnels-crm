@@ -97,29 +97,42 @@ export function KpiCard({
   value,
   sub,
   muted,
+  divider,
 }: {
   label: string;
   value: ReactNode;
   sub?: ReactNode;
   muted?: boolean;
+  divider?: boolean;
 }) {
   return (
     <div className="panel px-4 py-3.5">
       <div className="label-caps">{label}</div>
-      <div className="mt-2 flex items-baseline gap-2">
+      <div className={cn("mt-2 flex items-center", divider ? "gap-3" : "gap-2")}>
         <span
           className={cn(
-            "num text-[26px] font-semibold leading-none tracking-tight",
-            muted ? "text-muted-foreground text-[18px]" : "text-foreground",
+            "num font-semibold leading-none tracking-tight",
+            muted ? "text-[20px] text-muted-foreground" : "text-[26px] text-foreground",
           )}
         >
           {value}
         </span>
-        {sub ? <span className="num text-xs text-muted-foreground">{sub}</span> : null}
+        {sub && divider ? <span aria-hidden className="h-6 w-px shrink-0 bg-border" /> : null}
+        {sub ? (
+          <span
+            className={cn(
+              "num text-muted-foreground",
+              divider ? "text-[15px] font-medium" : "text-xs",
+            )}
+          >
+            {sub}
+          </span>
+        ) : null}
       </div>
     </div>
   );
 }
+
 
 /* -------------------------- section -------------------------- */
 
