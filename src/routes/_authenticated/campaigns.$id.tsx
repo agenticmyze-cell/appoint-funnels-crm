@@ -108,6 +108,114 @@ function CampaignDetail() {
           sub={money(campaign.opportunity_value)}
         />
       </div>
+
+      <div className="mt-3 rounded-lg border border-border bg-card">
+        <div className="flex justify-end px-4 pt-3">
+          <MetricLegend
+            selected={metrics}
+            onToggle={(k) =>
+              setMetrics((m) => (m.includes(k) ? m.filter((x) => x !== k) : [...m, k]))
+            }
+          />
+        </div>
+        <div className="px-2 pb-3 pt-2">
+          {stats.length ? (
+            <MetricChart stats={stats} metrics={metrics} height={260} />
+          ) : (
+            <EmptyState title="No activity yet" />
+          )}
+        </div>
+      </div>
+
+      <div className="mt-3">
+        <Section
+          title={
+            <div className="flex items-center gap-5">
+              {(["steps", "activity"] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setTab(t)}
+                  className={cn(
+                    "-mb-[13px] border-b-2 pb-3 text-[13px] font-semibold transition-colors",
+                    tab === t
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {t === "steps" ? "Step Analytics" : "Activity"}
+                </button>
+              ))}
+            </div>
+          }
+        >
+          {tab === "steps" ? (
+            steps.length ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-[13px]">
+                  <thead>
+                    <tr className="border-b border-border text-[11px] uppercase tracking-wide text-muted-foreground">
+                      <th className="px-4 py-2 text-left font-semibold">Step</th>
+                      <th className="px-4 py-2 text-right font-semibold">Sent</th>
+                      <th className="px-4 py-2 text-right font-semibold">Opened</th>
+                      <th className="px-4 py-2 text-right font-semibold">Replied</th>
+                      <th className="px-4 py-2 text-right font-semibold">Clicked</th>
+                      <th className="px-4 py-2 text-right font-semibold">Opportunities</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {steps.map((s) => (
+                      <tr key={s.id}>
+                        <td className="px-4 py-2.5">
+                          <p className="font-semibold text-foreground">Step {s.step_number}</p>
+                          {s.subject && (
+                            <p className="truncate text-[12px] text-muted-foreground">{s.subject}</p>
+                          )}
+                        </td>
+                        <td className="num px-4 py-2.5 text-right">{num(s.sent)}</td>
+                        <td className="num px-4 py-2.5 text-right">
+                          {num(s.opened)}{" "}
+                          <span className="text-muted-foreground">| {rate(s.opened, s.sent)}</span>
+                        </td>
+                        <td className="num px-4 py-2.5 text-right">
+                          {num(s.replied)}{" "}
+                          <span className="text-muted-foreground">| {rate(s.replied, s.sent)}</span>
+                        </td>
+                        <td className="num px-4 py-2.5 text-right">
+                          {num(s.clicked)}{" "}
+                          <span className="text-muted-foreground">| {rate(s.clicked, s.sent)}</span>
+                        </td>
+                        <td className="num px-4 py-2.5 text-right">{num(s.opportunities)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <EmptyState title="No steps configured" />
+            )
+          ) : activities.length ? (
+            <div className="divide-y divide-border">
+              {activities.map((a) => (
+                <div key={a.id} className="flex items-center gap-3 px-4 py-2.5">
+                  <span className="rounded border border-border bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                    {titleCase(a.activity_type)}
+                  </span>
+                  <p className="min-w-0 flex-1 truncate text-[13px] text-foreground">
+                    {a.description ?? "—"}
+                  </p>
+                  <span className="whitespace-nowrap text-[11px] text-muted-foreground">
+                    {dateTime(a.created_at)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState title="No activity yet" />
+          )}
+        </Section>
+      </div>
     </>
   );
 }
+
