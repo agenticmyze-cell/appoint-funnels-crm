@@ -1,11 +1,19 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { getCampaign, listClients } from "@/lib/api";
+import { getCampaign, listActivities, listClients, listDailyStats, listSteps } from "@/lib/api";
 import { PageHeader } from "@/components/app/AppShell";
-import { EmptyState, KpiCard, ProgressCell, StatusBadge } from "@/components/app/primitives";
-import { money, num, pct, shortDate } from "@/lib/format";
+import { EmptyState, KpiCard, ProgressCell, Section, StatusBadge } from "@/components/app/primitives";
+import {
+  MetricChart,
+  MetricLegend,
+  type MetricKey,
+} from "@/components/app/MetricChart";
+import { cn } from "@/lib/utils";
+import { dateTime, money, num, pct, rate, shortDate, titleCase } from "@/lib/format";
 import { clickRateLabel, openRateLabel, replyRate } from "@/lib/metrics";
+
 
 export const Route = createFileRoute("/_authenticated/campaigns/$id")({
   head: () => ({
@@ -25,11 +33,29 @@ export const Route = createFileRoute("/_authenticated/campaigns/$id")({
 function CampaignDetail() {
   const { id } = useParams({ from: "/_authenticated/campaigns/$id" });
 
+  const [tab, setTab] = useState<"steps" | "activity">("steps");
+  const [metrics, setMetrics] = useState<MetricKey[]>([
+    "sent",
+    "total_opens",
+    "unique_opens",
+    "total_replies",
+  ]);
+
   const { data: campaign } = useQuery({ queryKey: ["campaign", id], queryFn: () => getCampaign(id) });
   const { data: clients = [] } = useQuery({ queryKey: ["clients"], queryFn: listClients });
+  const { data: steps = [] } = useQuery({ queryKey: ["steps", id], queryFn: () => listSteps(id) });
+  const { data: stats = [] } = useQuery({
+    queryKey: ["daily", id, "90"],
+    queryFn: () => listDailyStats([id], 90),
+  });
+  const { data: activities = [] } = useQuery({
+    queryKey: ["activities", id],
+    queryFn: () => listActivities({ campaignId: id }),
+  });
 
   if (!campaign) return <EmptyState title="Loading campaign…" />;
   const client = clients.find((c) => c.id === campaign.client_id);
+
 
   return (
     <>
@@ -82,6 +108,114 @@ function CampaignDetail() {
           sub={money(campaign.opportunity_value)}
         />
       </div>
+
+      <div className="mt-3 rounded-lg border border-border bg-card">
+        <div className="flex justify-end px-4 pt-3">
+          <MetricLegend
+            selected={metrics}
+            onToggle={(k) =>
+              setMetrics((m) => (m.includes(k) ? m.filter((x) => x !== k) : [...m, k]))
+            }
+          />
+        </div>
+        <div className="px-2 pb-3 pt-2">
+          {stats.length ? (
+            <MetricChart stats={stats} metrics={metrics} height={260} />
+          ) : (
+            <EmptyState title="No activity yet" />
+          )}
+        </div>
+      </div>
+
+      <div className="mt-3">
+        <Section
+          title={
+            <div className="flex items-center gap-5">
+              {(["steps", "activity"] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setTab(t)}
+                  className={cn(
+                    "-mb-[13px] border-b-2 pb-3 text-[13px] font-semibold transition-colors",
+                    tab === t
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {t === "steps" ? "Step Analytics" : "Activity"}
+                </button>
+              ))}
+            </div>
+          }
+        >
+          {tab === "steps" ? (
+            steps.length ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-[13px]">
+                  <thead>
+                    <tr className="border-b border-border text-[11px] uppercase tracking-wide text-muted-foreground">
+                      <th className="px-4 py-2 text-left font-semibold">Step</th>
+                      <th className="px-4 py-2 text-right font-semibold">Sent</th>
+                      <th className="px-4 py-2 text-right font-semibold">Opened</th>
+                      <th className="px-4 py-2 text-right font-semibold">Replied</th>
+                      <th className="px-4 py-2 text-right font-semibold">Clicked</th>
+                      <th className="px-4 py-2 text-right font-semibold">Opportunities</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {steps.map((s) => (
+                      <tr key={s.id}>
+                        <td className="px-4 py-2.5">
+                          <p className="font-semibold text-foreground">Step {s.step_number}</p>
+                          {s.subject && (
+                            <p className="truncate text-[12px] text-muted-foreground">{s.subject}</p>
+                          )}
+                        </td>
+                        <td className="num px-4 py-2.5 text-right">{num(s.sent)}</td>
+                        <td className="num px-4 py-2.5 text-right">
+                          {num(s.opened)}{" "}
+                          <span className="text-muted-foreground">| {rate(s.opened, s.sent)}</span>
+                        </td>
+                        <td className="num px-4 py-2.5 text-right">
+                          {num(s.replied)}{" "}
+                          <span className="text-muted-foreground">| {rate(s.replied, s.sent)}</span>
+                        </td>
+                        <td className="num px-4 py-2.5 text-right">
+                          {num(s.clicked)}{" "}
+                          <span className="text-muted-foreground">| {rate(s.clicked, s.sent)}</span>
+                        </td>
+                        <td className="num px-4 py-2.5 text-right">{num(s.opportunities)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <EmptyState title="No steps configured" />
+            )
+          ) : activities.length ? (
+            <div className="divide-y divide-border">
+              {activities.map((a) => (
+                <div key={a.id} className="flex items-center gap-3 px-4 py-2.5">
+                  <span className="rounded border border-border bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                    {titleCase(a.activity_type)}
+                  </span>
+                  <p className="min-w-0 flex-1 truncate text-[13px] text-foreground">
+                    {a.description ?? "—"}
+                  </p>
+                  <span className="whitespace-nowrap text-[11px] text-muted-foreground">
+                    {dateTime(a.created_at)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState title="No activity yet" />
+          )}
+        </Section>
+      </div>
     </>
   );
 }
+
