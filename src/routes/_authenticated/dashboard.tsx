@@ -98,7 +98,7 @@ function Dashboard() {
         <KpiCard label="Leads" value={num(t.leads)} />
         <KpiCard label="Emails sent" value={num(t.sent)} />
         <KpiCard label="Replies" value={num(t.replies)} sub={totalsReplyRate(t)} />
-        <KpiCard label="Opportunities" value={num(t.opportunities)} sub={money(t.pipeline)} />
+        <KpiCard label="Opportunities" value={num(t.opportunities)} divider sub={money(t.pipeline)} />
         <KpiCard label="Meetings booked" value={num(t.meetings)} sub={`${num(t.won)} won`} />
       </div>
 
