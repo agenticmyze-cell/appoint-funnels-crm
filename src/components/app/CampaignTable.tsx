@@ -1,16 +1,16 @@
 import { Link } from "@tanstack/react-router";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Play } from "lucide-react";
 import type { Campaign, Client } from "@/lib/api";
-import { money, num } from "@/lib/format";
-import { clickRateLabel, openRateLabel, replyRate } from "@/lib/metrics";
+import { money, num, pct } from "@/lib/format";
+import { replyRate } from "@/lib/metrics";
 import { ProgressCell, StatusBadge } from "./primitives";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { pct } from "@/lib/format";
 
 export function CampaignTable({
   campaigns,
@@ -28,116 +28,94 @@ export function CampaignTable({
   const clientName = (id: string) => clients?.find((c) => c.id === id)?.name ?? "—";
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[900px] border-collapse text-[13px]">
-        <thead>
-          <tr className="border-b border-border bg-muted/40 text-left">
-            <Th className="pl-4">Name</Th>
-            {showClient && <Th>Client</Th>}
-            <Th>Status</Th>
-            <Th>Progress</Th>
-            <Th align="right">Sent</Th>
-            <Th align="right">Open %</Th>
-            <Th align="right">Click %</Th>
-            <Th align="right">Replied</Th>
-            <Th align="right">Reply %</Th>
-            <Th align="right">Opportunities</Th>
-            <Th align="right">Value</Th>
-            <Th className="w-10" />
-          </tr>
-        </thead>
-        <tbody>
-          {campaigns.map((c) => (
-            <tr key={c.id} className="border-b border-border last:border-b-0 hover:bg-muted/40">
-              <td className="max-w-[240px] py-2.5 pl-4 pr-3">
-                <Link
-                  to="/campaigns/$id"
-                  params={{ id: c.id }}
-                  className="block truncate font-medium text-foreground hover:text-primary"
-                >
-                  {c.name}
-                </Link>
-                {c.metrics_mode === "manual" && (
-                  <span className="mt-0.5 inline-block text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-                    Manual metrics
-                  </span>
-                )}
-              </td>
-              {showClient && (
-                <td className="px-3 py-2.5 text-muted-foreground">{clientName(c.client_id)}</td>
-              )}
-              <td className="px-3 py-2.5">
-                <StatusBadge status={c.status} />
-              </td>
-              <td className="px-3 py-2.5">
-                <ProgressCell value={c.progress} />
-              </td>
-              <Td>{num(c.emails_sent)}</Td>
-              <Td muted={!c.open_rate_enabled}>{openRateLabel(c)}</Td>
-              <Td muted={!c.click_rate_enabled}>{clickRateLabel(c)}</Td>
-              <Td>{num(c.total_replies)}</Td>
-              <Td>{pct(replyRate(c))}</Td>
-              <Td>{num(c.opportunities)}</Td>
-              <Td>{money(c.opportunity_value)}</Td>
-              <td className="pr-3">
-                {onEdit || onDelete ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        type="button"
-                        className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-                      >
-                        <MoreHorizontal className="size-4" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      {onEdit && <DropdownMenuItem onClick={() => onEdit(c)}>Edit</DropdownMenuItem>}
-                      {onDelete && (
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => onDelete(c)}
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : null}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="space-y-2.5 p-3">
+      <div className="hidden items-center gap-3 px-3 text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground lg:flex">
+        <span className="w-5" />
+        <span className="min-w-0 flex-1">Name</span>
+        <span className="w-24">Status</span>
+        <span className="w-20">Progress</span>
+        <span className="w-20 text-right">Sent</span>
+        <span className="w-20 text-right">Click</span>
+        <span className="w-28 text-right">Replied</span>
+        <span className="w-32 text-right">Opportunities</span>
+        <span className="w-16" />
+      </div>
+
+      {campaigns.map((c) => (
+        <div
+          key={c.id}
+          className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-3 py-4 shadow-sm transition-colors hover:border-border-strong"
+        >
+          <Checkbox className="w-5" aria-label={`Select ${c.name}`} />
+
+          <div className="min-w-0 flex-1">
+            <Link
+              to="/campaigns/$id"
+              params={{ id: c.id }}
+              className="block truncate text-[14px] font-semibold text-foreground hover:text-primary"
+            >
+              {c.name}
+            </Link>
+            {showClient && (
+              <span className="text-[12px] text-muted-foreground">{clientName(c.client_id)}</span>
+            )}
+          </div>
+
+          <div className="w-24">
+            <StatusBadge status={c.status} />
+          </div>
+          <div className="w-20">
+            <ProgressCell value={c.progress} />
+          </div>
+          <div className="num w-20 text-right text-[13px] font-medium">{num(c.emails_sent)}</div>
+          <div
+            className={`num w-20 text-right text-[13px] font-medium ${
+              c.click_rate_enabled ? "" : "text-muted-foreground"
+            }`}
+          >
+            {c.click_rate_enabled ? num(c.unique_clicks) : "—"}
+          </div>
+          <div className="num w-28 text-right text-[13px] font-medium">
+            {num(c.total_replies)}{" "}
+            <span className="text-muted-foreground">| {pct(replyRate(c), 2)}</span>
+          </div>
+          <div className="num w-32 text-right text-[13px] font-medium">
+            {num(c.opportunities)}{" "}
+            <span className="text-muted-foreground">| {money(c.opportunity_value)}</span>
+          </div>
+
+          <div className="flex w-16 items-center justify-end gap-1">
+            <Link
+              to="/campaigns/$id"
+              params={{ id: c.id }}
+              className="flex size-7 items-center justify-center rounded-md text-success hover:bg-muted"
+              title="Open campaign"
+            >
+              <Play className="size-4" />
+            </Link>
+            {onEdit || onDelete ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <MoreHorizontal className="size-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {onEdit && <DropdownMenuItem onClick={() => onEdit(c)}>Edit</DropdownMenuItem>}
+                  {onDelete && (
+                    <DropdownMenuItem className="text-destructive" onClick={() => onDelete(c)}>
+                      Delete
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : null}
+          </div>
+        </div>
+      ))}
     </div>
-  );
-}
-
-function Th({
-  children,
-  align = "left",
-  className,
-}: {
-  children?: React.ReactNode;
-  align?: "left" | "right";
-  className?: string;
-}) {
-  return (
-    <th
-      className={`px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground ${
-        align === "right" ? "text-right" : "text-left"
-      } ${className ?? ""}`}
-    >
-      {children}
-    </th>
-  );
-}
-
-function Td({ children, muted }: { children: React.ReactNode; muted?: boolean }) {
-  return (
-    <td
-      className={`num px-3 py-2.5 text-right ${muted ? "text-muted-foreground" : "text-foreground"}`}
-    >
-      {children}
-    </td>
   );
 }
