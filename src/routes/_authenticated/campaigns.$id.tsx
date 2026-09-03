@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { getCampaign, listActivities, listClients, listDailyStats, listSteps } from "@/lib/api";
 import { PageHeader } from "@/components/app/AppShell";
-import { EmptyState, KpiCard, ProgressCell, StatusBadge } from "@/components/app/primitives";
+import { EmptyState, KpiCard, ProgressCell, Section, StatusBadge } from "@/components/app/primitives";
 import {
   MetricChart,
   MetricLegend,
