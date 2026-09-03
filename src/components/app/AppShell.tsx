@@ -318,6 +318,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [scopeId, setScopeId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [focus, setFocus] = useState(false);
+
 
   useEffect(() => {
     setCollapsed(localStorage.getItem("af-sidebar") === "1");
