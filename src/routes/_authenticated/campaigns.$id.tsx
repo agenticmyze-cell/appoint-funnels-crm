@@ -33,11 +33,29 @@ export const Route = createFileRoute("/_authenticated/campaigns/$id")({
 function CampaignDetail() {
   const { id } = useParams({ from: "/_authenticated/campaigns/$id" });
 
+  const [tab, setTab] = useState<"steps" | "activity">("steps");
+  const [metrics, setMetrics] = useState<MetricKey[]>([
+    "sent",
+    "total_opens",
+    "unique_opens",
+    "total_replies",
+  ]);
+
   const { data: campaign } = useQuery({ queryKey: ["campaign", id], queryFn: () => getCampaign(id) });
   const { data: clients = [] } = useQuery({ queryKey: ["clients"], queryFn: listClients });
+  const { data: steps = [] } = useQuery({ queryKey: ["steps", id], queryFn: () => listSteps(id) });
+  const { data: stats = [] } = useQuery({
+    queryKey: ["daily", id, "90"],
+    queryFn: () => listDailyStats([id], 90),
+  });
+  const { data: activities = [] } = useQuery({
+    queryKey: ["activities", id],
+    queryFn: () => listActivities({ campaignId: id }),
+  });
 
   if (!campaign) return <EmptyState title="Loading campaign…" />;
   const client = clients.find((c) => c.id === campaign.client_id);
+
 
   return (
     <>
