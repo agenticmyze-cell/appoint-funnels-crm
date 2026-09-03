@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Maximize2, Minimize2, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import {
   deleteCampaign,
@@ -11,7 +11,7 @@ import {
   upsertCampaign,
   type Campaign,
 } from "@/lib/api";
-import { PageHeader, useScope } from "@/components/app/AppShell";
+import { PageHeader, useFocusMode, useScope } from "@/components/app/AppShell";
 import { EmptyState, Section } from "@/components/app/primitives";
 import { CampaignTable } from "@/components/app/CampaignTable";
 import { ConfirmDelete, RecordDialog, type Field } from "@/components/app/RecordDialog";
@@ -51,6 +51,7 @@ const SORTS = [
 
 function CampaignsPage() {
   const { clientId, isAdmin } = useScope();
+  const { focus, setFocus } = useFocusMode();
   const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
@@ -178,11 +179,22 @@ function CampaignsPage() {
         title="Campaigns"
         description={`${rows.length} campaign${rows.length === 1 ? "" : "s"} in view`}
         actions={
-          isAdmin ? (
-            <Button size="sm" onClick={() => setCreating(true)}>
-              <Plus className="size-4" /> Add New
+          <>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setFocus(!focus)}
+              title={focus ? "Show navigation" : "Hide navigation and expand campaigns"}
+            >
+              {focus ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+              {focus ? "Show panels" : "Focus campaigns"}
             </Button>
-          ) : null
+            {isAdmin ? (
+              <Button size="sm" onClick={() => setCreating(true)}>
+                <Plus className="size-4" /> Add New
+              </Button>
+            ) : null}
+          </>
         }
       />
 

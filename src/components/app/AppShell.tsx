@@ -56,6 +56,18 @@ export function useScope() {
   return useContext(ScopeContext);
 }
 
+/* ---------------------------- focus mode ---------------------------- */
+
+const FocusContext = createContext<{ focus: boolean; setFocus: (v: boolean) => void }>({
+  focus: false,
+  setFocus: () => {},
+});
+
+export function useFocusMode() {
+  return useContext(FocusContext);
+}
+
+
 /* ---------------------------- sidebar ---------------------------- */
 
 function Sidebar({
@@ -306,6 +318,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [scopeId, setScopeId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [focus, setFocus] = useState(false);
+
 
   useEffect(() => {
     setCollapsed(localStorage.getItem("af-sidebar") === "1");
@@ -349,15 +363,18 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <ScopeContext.Provider value={scope}>
-      <div className="flex min-h-screen w-full bg-surface">
-        <Sidebar collapsed={collapsed} onToggle={toggle} isAdmin={!!isAdmin} />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <Topbar onOpenSearch={() => setSearchOpen(true)} />
-          <main className="min-w-0 flex-1 p-4">{children}</main>
+      <FocusContext.Provider value={{ focus, setFocus }}>
+        <div className="flex min-h-screen w-full bg-surface">
+          {!focus && <Sidebar collapsed={collapsed} onToggle={toggle} isAdmin={!!isAdmin} />}
+          <div className="flex min-w-0 flex-1 flex-col">
+            {!focus && <Topbar onOpenSearch={() => setSearchOpen(true)} />}
+            <main className="min-w-0 flex-1 p-4">{children}</main>
+          </div>
         </div>
-      </div>
-      <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
+        <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
+      </FocusContext.Provider>
     </ScopeContext.Provider>
+
   );
 }
 
