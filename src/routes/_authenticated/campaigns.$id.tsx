@@ -1,11 +1,19 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { getCampaign, listClients } from "@/lib/api";
+import { getCampaign, listActivities, listClients, listDailyStats, listSteps } from "@/lib/api";
 import { PageHeader } from "@/components/app/AppShell";
 import { EmptyState, KpiCard, ProgressCell, StatusBadge } from "@/components/app/primitives";
-import { money, num, pct, shortDate } from "@/lib/format";
+import {
+  MetricChart,
+  MetricLegend,
+  type MetricKey,
+} from "@/components/app/MetricChart";
+import { cn } from "@/lib/utils";
+import { dateTime, money, num, pct, rate, shortDate, titleCase } from "@/lib/format";
 import { clickRateLabel, openRateLabel, replyRate } from "@/lib/metrics";
+
 
 export const Route = createFileRoute("/_authenticated/campaigns/$id")({
   head: () => ({
