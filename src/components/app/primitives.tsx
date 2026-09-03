@@ -143,7 +143,7 @@ export function Section({
   className,
   bodyClassName,
 }: {
-  title?: string;
+  title?: ReactNode;
   actions?: ReactNode;
   children: ReactNode;
   className?: string;
