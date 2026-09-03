@@ -56,6 +56,18 @@ export function useScope() {
   return useContext(ScopeContext);
 }
 
+/* ---------------------------- focus mode ---------------------------- */
+
+const FocusContext = createContext<{ focus: boolean; setFocus: (v: boolean) => void }>({
+  focus: false,
+  setFocus: () => {},
+});
+
+export function useFocusMode() {
+  return useContext(FocusContext);
+}
+
+
 /* ---------------------------- sidebar ---------------------------- */
 
 function Sidebar({
