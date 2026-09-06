@@ -12,7 +12,6 @@ import {
 } from "@/lib/api";
 import { useScope, PageHeader } from "@/components/app/AppShell";
 import { KpiCard, Section, StatusBadge, EmptyState } from "@/components/app/primitives";
-import { CampaignTable } from "@/components/app/CampaignTable";
 import {
   MetricChart,
   MetricLegend,
@@ -93,13 +92,12 @@ function Dashboard() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-6">
-        <KpiCard label="Active campaigns" value={num(campaigns.filter((c) => c.status === "active").length)} sub={`of ${num(t.campaigns)}`} />
-        <KpiCard label="Leads" value={num(t.leads)} />
-        <KpiCard label="Emails sent" value={num(t.sent)} />
-        <KpiCard label="Replies" value={num(t.replies)} sub={totalsReplyRate(t)} />
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <KpiCard label="Sequence started" value={num(campaigns.reduce((sum, c) => sum + c.sequence_started, 0))} />
+        <KpiCard label="Open rate" value={totalsOpenRate(t)} />
+        <KpiCard label="Click rate" value={t.sent ? pct((t.clicks / t.sent) * 100) : "0.00%"} />
+        <KpiCard label="Replies" value={num(t.replies)} divider sub={totalsReplyRate(t)} />
         <KpiCard label="Opportunities" value={num(t.opportunities)} divider sub={money(t.pipeline)} />
-        <KpiCard label="Meetings booked" value={num(t.meetings)} sub={`${num(t.won)} won`} />
       </div>
 
       <div className="mt-3 grid gap-3 xl:grid-cols-3">
@@ -137,23 +135,6 @@ function Dashboard() {
             <Rate label="Revenue won" value={money(t.revenue)} />
             <Rate label="Total clicks" value={num(t.clicks)} />
           </div>
-        </Section>
-      </div>
-
-      <div className="mt-3">
-        <Section
-          title="Campaigns"
-          actions={
-            <Link to="/campaigns" className="text-[12px] font-semibold text-primary">
-              View all
-            </Link>
-          }
-        >
-          {campaigns.length ? (
-            <CampaignTable campaigns={campaigns.slice(0, 6)} clients={clients} showClient={!clientId} />
-          ) : (
-            <EmptyState title="No campaigns yet" description="Create a campaign to start tracking outbound performance." />
-          )}
         </Section>
       </div>
 
