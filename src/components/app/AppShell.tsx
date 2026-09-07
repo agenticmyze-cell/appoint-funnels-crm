@@ -78,9 +78,12 @@ function Sidebar({
       )}
     >
       <div className="flex h-12 items-center gap-2 border-b border-border px-3">
-        <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary">
-          <PanelsTopLeft className="size-4 text-primary-foreground" />
-        </div>
+        <img
+          src={brandLogo.url}
+          alt="Appoint Funnels CRM logo"
+          className="size-7 shrink-0 rounded-md object-contain"
+        />
+      </div>
         {!collapsed && (
           <div className="min-w-0 leading-tight">
             <div className="truncate text-[12px] font-bold tracking-tight text-foreground">
