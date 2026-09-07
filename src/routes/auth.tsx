@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { PanelsTopLeft } from "lucide-react";
+import brandLogo from "@/assets/appoint-funnels-logo.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
@@ -85,9 +85,11 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-surface px-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-md bg-primary">
-            <PanelsTopLeft className="size-4 text-primary-foreground" />
-          </div>
+          <img
+            src={brandLogo.url}
+            alt="Appoint Funnels CRM logo"
+            className="size-8 rounded-md object-contain"
+          />
           <div className="leading-tight">
             <div className="text-[13px] font-bold tracking-tight">APPOINT FUNNELS</div>
             <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">

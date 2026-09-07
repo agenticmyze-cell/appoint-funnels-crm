@@ -15,7 +15,6 @@ import {
   ChevronsLeft,
   ChevronsRight,
   LogOut,
-  PanelsTopLeft,
   Search,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +23,7 @@ import { useSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
 import { initials, relative } from "@/lib/format";
 import { NAV_ITEMS } from "./nav";
+import brandLogo from "@/assets/appoint-funnels-logo.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -78,9 +78,11 @@ function Sidebar({
       )}
     >
       <div className="flex h-12 items-center gap-2 border-b border-border px-3">
-        <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary">
-          <PanelsTopLeft className="size-4 text-primary-foreground" />
-        </div>
+        <img
+          src={brandLogo.url}
+          alt="Appoint Funnels CRM logo"
+          className="size-7 shrink-0 rounded-md object-contain"
+        />
         {!collapsed && (
           <div className="min-w-0 leading-tight">
             <div className="truncate text-[12px] font-bold tracking-tight text-foreground">

@@ -1,8 +1,8 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { getCampaign, listActivities, listClients, listDailyStats, listSteps } from "@/lib/api";
+import { getCampaign, listClients, listDailyStats, listReplies, listSteps } from "@/lib/api";
 import { PageHeader } from "@/components/app/AppShell";
 import { EmptyState, KpiCard, ProgressCell, Section, StatusBadge } from "@/components/app/primitives";
 import {
@@ -11,7 +11,7 @@ import {
   type MetricKey,
 } from "@/components/app/MetricChart";
 import { cn } from "@/lib/utils";
-import { dateTime, money, num, pct, rate, shortDate, titleCase } from "@/lib/format";
+import { initials, money, num, pct, rate, relative, shortDate } from "@/lib/format";
 import { clickRateLabel, openRateLabel, replyRate } from "@/lib/metrics";
 
 
@@ -33,7 +33,8 @@ export const Route = createFileRoute("/_authenticated/campaigns/$id")({
 function CampaignDetail() {
   const { id } = useParams({ from: "/_authenticated/campaigns/$id" });
 
-  const [tab, setTab] = useState<"steps" | "activity">("steps");
+  const navigate = useNavigate();
+  const [tab, setTab] = useState<"steps" | "replies">("steps");
   const [metrics, setMetrics] = useState<MetricKey[]>([
     "sent",
     "total_opens",
@@ -48,9 +49,9 @@ function CampaignDetail() {
     queryKey: ["daily", id, "90"],
     queryFn: () => listDailyStats([id], 90),
   });
-  const { data: activities = [] } = useQuery({
-    queryKey: ["activities", id],
-    queryFn: () => listActivities({ campaignId: id }),
+  const { data: replies = [] } = useQuery({
+    queryKey: ["replies", "campaign", id],
+    queryFn: () => listReplies({ campaignId: id }),
   });
 
   if (!campaign) return <EmptyState title="Loading campaign…" />;
@@ -131,7 +132,7 @@ function CampaignDetail() {
         <Section
           title={
             <div className="flex items-center gap-5">
-              {(["steps", "activity"] as const).map((t) => (
+              {(["steps", "replies"] as const).map((t) => (
                 <button
                   key={t}
                   type="button"
@@ -143,7 +144,7 @@ function CampaignDetail() {
                       : "border-transparent text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  {t === "steps" ? "Step Analytics" : "Activity"}
+                  {t === "steps" ? "Step Analytics" : `Replies (${replies.length})`}
                 </button>
               ))}
             </div>
@@ -194,24 +195,37 @@ function CampaignDetail() {
             ) : (
               <EmptyState title="No steps configured" />
             )
-          ) : activities.length ? (
+          ) : replies.length ? (
             <div className="divide-y divide-border">
-              {activities.map((a) => (
-                <div key={a.id} className="flex items-center gap-3 px-4 py-2.5">
-                  <span className="rounded border border-border bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
-                    {titleCase(a.activity_type)}
+              {replies.map((r) => (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() =>
+                    navigate({ to: "/inbox", search: { campaign: id, reply: r.id } })
+                  }
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-muted/60"
+                >
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded bg-muted text-[10px] font-bold text-muted-foreground">
+                    {initials(r.lead_name ?? r.lead_email)}
                   </span>
-                  <p className="min-w-0 flex-1 truncate text-[13px] text-foreground">
-                    {a.description ?? "—"}
-                  </p>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold text-foreground">
+                      {r.lead_name ?? r.lead_email}
+                    </p>
+                    <p className="truncate text-[12px] text-muted-foreground">
+                      {r.subject ?? r.body ?? "—"}
+                    </p>
+                  </div>
+                  <StatusBadge status={r.classification} />
                   <span className="whitespace-nowrap text-[11px] text-muted-foreground">
-                    {dateTime(a.created_at)}
+                    {relative(r.received_at)}
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           ) : (
-            <EmptyState title="No activity yet" />
+            <EmptyState title="No replies yet" />
           )}
         </Section>
       </div>

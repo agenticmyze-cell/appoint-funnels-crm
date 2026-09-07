@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { Archive, Inbox as InboxIcon, Search, Send, Star, Target, Trash2 } from "lucide-react";
@@ -39,6 +39,10 @@ export const Route = createFileRoute("/_authenticated/inbox")({
       { property: "og:description", content: "One inbox for all campaign conversations." },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>): { campaign?: string; reply?: string } => ({
+    ...(typeof search["campaign"] === "string" ? { campaign: search["campaign"] as string } : {}),
+    ...(typeof search["reply"] === "string" ? { reply: search["reply"] as string } : {}),
+  }),
   component: InboxPage,
 });
 
@@ -64,7 +68,10 @@ function InboxPage() {
   const qc = useQueryClient();
   const [folder, setFolder] = useState("all");
   const [q, setQ] = useState("");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const search = useSearch({ from: "/_authenticated/inbox" });
+  const navigate = useNavigate();
+  const campaignFilter = search.campaign ?? "all";
+  const [selectedId, setSelectedId] = useState<string | null>(search.reply ?? null);
   const [draft, setDraft] = useState("");
 
   const { data: replies = [] } = useQuery({
@@ -88,10 +95,15 @@ function InboxPage() {
               : folder === "meetings"
                 ? r.classification === "meeting_request"
                 : r.folder === folder;
-        return inFolder && (!q || hay.includes(q.toLowerCase()));
+        const inCampaign = campaignFilter === "all" || r.campaign_id === campaignFilter;
+        return inCampaign && inFolder && (!q || hay.includes(q.toLowerCase()));
       }),
-    [replies, folder, q],
+    [replies, folder, q, campaignFilter],
   );
+
+  useEffect(() => {
+    if (search.reply) setSelectedId(search.reply);
+  }, [search.reply]);
 
   useEffect(() => {
     if (!selectedId && list.length) setSelectedId(list[0]!.id);
@@ -141,6 +153,41 @@ function InboxPage() {
   return (
     <>
       <PageHeader title="Inbox" description={`${list.length} conversation${list.length === 1 ? "" : "s"}`} />
+
+      <div className="mb-3 flex flex-wrap gap-2">
+        {[{ id: "all", name: "All campaigns" }, ...campaigns].map((c) => {
+          const count =
+            c.id === "all" ? replies.length : replies.filter((r) => r.campaign_id === c.id).length;
+          const unread =
+            c.id === "all"
+              ? replies.filter((r) => !r.is_read).length
+              : replies.filter((r) => r.campaign_id === c.id && !r.is_read).length;
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => {
+                setSelectedId(null);
+                navigate({
+                  to: "/inbox",
+                  search: c.id === "all" ? {} : { campaign: c.id },
+                });
+              }}
+              className={cn(
+                "min-w-[170px] rounded-lg border bg-card px-3 py-2 text-left transition-colors",
+                campaignFilter === c.id
+                  ? "border-primary bg-primary-soft/60"
+                  : "border-border hover:border-primary/40",
+              )}
+            >
+              <p className="truncate text-[12px] font-semibold text-foreground">{c.name}</p>
+              <p className="num mt-0.5 text-[11px] text-muted-foreground">
+                {count} replies{unread ? ` · ${unread} unread` : ""}
+              </p>
+            </button>
+          );
+        })}
+      </div>
 
       <div className="panel grid h-[calc(100vh-8.5rem)] grid-cols-1 overflow-hidden lg:grid-cols-[190px_320px_1fr]">
         {/* folders */}
