@@ -39,9 +39,9 @@ export const Route = createFileRoute("/_authenticated/inbox")({
       { property: "og:description", content: "One inbox for all campaign conversations." },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>) => ({
-    campaign: typeof search["campaign"] === "string" ? (search["campaign"] as string) : undefined,
-    reply: typeof search["reply"] === "string" ? (search["reply"] as string) : undefined,
+  validateSearch: (search: Record<string, unknown>): { campaign?: string; reply?: string } => ({
+    ...(typeof search["campaign"] === "string" ? { campaign: search["campaign"] as string } : {}),
+    ...(typeof search["reply"] === "string" ? { reply: search["reply"] as string } : {}),
   }),
   component: InboxPage,
 });
