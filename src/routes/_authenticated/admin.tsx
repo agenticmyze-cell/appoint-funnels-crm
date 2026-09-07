@@ -215,8 +215,8 @@ function AdminPage() {
         {
           action: editingRow ? "update" : "create",
           entity_type: "reply",
-          entity_id: saved.id,
-          entity_label: saved.lead_email,
+          entity_id: saved?.id ?? null,
+          entity_label: saved?.lead_email ?? String(values["lead_email"]),
         },
       ]);
     },
