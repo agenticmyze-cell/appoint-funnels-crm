@@ -15,7 +15,6 @@ import {
   ChevronsLeft,
   ChevronsRight,
   LogOut,
-  PanelsTopLeft,
   Search,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +23,7 @@ import { useSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
 import { initials, relative } from "@/lib/format";
 import { NAV_ITEMS } from "./nav";
+import brandLogo from "@/assets/appoint-funnels-logo.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
