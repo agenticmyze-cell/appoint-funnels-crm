@@ -210,13 +210,14 @@ function AdminPage() {
         classification: values["classification"] as Reply["classification"],
         folder: String(values["folder"] || "inbox"),
       };
-      const saved = editingRow ? await updateReply(editingRow.id, row) : await insertReply(row);
+      if (editingRow) await updateReply(editingRow.id, row);
+      else await insertReply(row);
       await logAudit([
         {
           action: editingRow ? "update" : "create",
           entity_type: "reply",
-          entity_id: saved?.id ?? null,
-          entity_label: saved?.lead_email ?? String(values["lead_email"]),
+          entity_id: editingRow?.id ?? null,
+          entity_label: String(values["lead_email"]),
         },
       ]);
     },
