@@ -83,7 +83,6 @@ function Sidebar({
           alt="Appoint Funnels CRM logo"
           className="size-7 shrink-0 rounded-md object-contain"
         />
-      </div>
         {!collapsed && (
           <div className="min-w-0 leading-tight">
             <div className="truncate text-[12px] font-bold tracking-tight text-foreground">
