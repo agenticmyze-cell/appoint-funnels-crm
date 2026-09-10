@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { dateTime, initials, relative } from "@/lib/format";
+import { initials } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/inbox")({
   head: () => ({
@@ -261,9 +261,6 @@ function InboxPage() {
                   >
                     {r.lead_name ?? r.lead_email}
                   </p>
-                  <span className="whitespace-nowrap text-[11px] text-muted-foreground">
-                    {relative(r.received_at)}
-                  </span>
                 </div>
                 <p className="mt-1 truncate text-[12px] font-medium text-foreground">{r.subject}</p>
                 <p className="truncate text-[12px] text-muted-foreground">{r.body}</p>
@@ -348,7 +345,7 @@ function InboxPage() {
                       <p className="text-[12px] font-semibold text-foreground">
                         {m.direction === "outbound" ? m.from_email ?? "You" : m.from_email ?? selected.lead_email}
                       </p>
-                      <span className="text-[11px] text-muted-foreground">{dateTime(m.sent_at)}</span>
+                      
                     </div>
                     <p className="mt-1.5 whitespace-pre-wrap text-[13px] leading-relaxed text-foreground">
                       {m.body}
