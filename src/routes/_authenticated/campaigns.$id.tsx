@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { initials, money, num, pct, rate, shortDate } from "@/lib/format";
 import { clickRateLabel, openRateLabel, replyRate } from "@/lib/metrics";
+import { activityWithFallback } from "@/lib/activity";
 
 
 export const Route = createFileRoute("/_authenticated/campaigns/$id")({
