@@ -20,6 +20,7 @@ import {
 } from "@/components/app/MetricChart";
 import { money, num, pct, relative } from "@/lib/format";
 import { totalsOf, totalsOpenRate, totalsReplyRate } from "@/lib/metrics";
+import { activityWithFallback } from "@/lib/activity";
 import { ResultsProof } from "@/components/app/ResultsProof";
 import { Button } from "@/components/ui/button";
 
