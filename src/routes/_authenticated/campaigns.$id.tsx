@@ -11,7 +11,7 @@ import {
   type MetricKey,
 } from "@/components/app/MetricChart";
 import { cn } from "@/lib/utils";
-import { initials, money, num, pct, rate, relative, shortDate } from "@/lib/format";
+import { initials, money, num, pct, rate, shortDate } from "@/lib/format";
 import { clickRateLabel, openRateLabel, replyRate } from "@/lib/metrics";
 
 
