@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { initials, money, num, pct, rate, shortDate } from "@/lib/format";
 import { clickRateLabel, openRateLabel, replyRate } from "@/lib/metrics";
+import { activityWithFallback } from "@/lib/activity";
 
 
 export const Route = createFileRoute("/_authenticated/campaigns/$id")({
@@ -56,6 +57,7 @@ function CampaignDetail() {
 
   if (!campaign) return <EmptyState title="Loading campaign…" />;
   const client = clients.find((c) => c.id === campaign.client_id);
+  const series = activityWithFallback([campaign], stats, 90);
 
 
   return (
@@ -120,8 +122,8 @@ function CampaignDetail() {
           />
         </div>
         <div className="px-2 pb-3 pt-2">
-          {stats.length ? (
-            <MetricChart stats={stats} metrics={metrics} height={260} />
+          {series.length ? (
+            <MetricChart stats={series} metrics={metrics} height={260} />
           ) : (
             <EmptyState title="No activity yet" />
           )}

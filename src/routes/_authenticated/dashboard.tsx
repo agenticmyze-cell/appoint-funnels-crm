@@ -20,6 +20,7 @@ import {
 } from "@/components/app/MetricChart";
 import { money, num, pct, relative } from "@/lib/format";
 import { totalsOf, totalsOpenRate, totalsReplyRate } from "@/lib/metrics";
+import { activityWithFallback } from "@/lib/activity";
 import { ResultsProof } from "@/components/app/ResultsProof";
 import { Button } from "@/components/ui/button";
 
@@ -72,6 +73,7 @@ function Dashboard() {
   });
 
   const t = totalsOf(campaigns);
+  const series = activityWithFallback(campaigns, stats, Number(range));
   const client = clients.find((c) => c.id === clientId);
 
   return (
@@ -115,8 +117,8 @@ function Dashboard() {
             />
           </div>
           <div className="px-2 pb-3 pt-2">
-            {stats.length ? (
-              <MetricChart stats={stats} metrics={metrics} />
+            {series.length ? (
+              <MetricChart stats={series} metrics={metrics} />
             ) : (
               <EmptyState title="No activity in this range" />
             )}

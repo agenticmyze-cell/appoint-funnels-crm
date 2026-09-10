@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { listCampaigns, listClients, listDailyStats } from "@/lib/api";
+import { activityWithFallback } from "@/lib/activity";
 import { PageHeader, useScope } from "@/components/app/AppShell";
 import { EmptyState, KpiCard, Section } from "@/components/app/primitives";
 import {
@@ -50,6 +51,7 @@ function AnalyticsPage() {
   });
 
   const t = totalsOf(campaigns);
+  const series = activityWithFallback(campaigns, stats, Number(range));
 
   return (
     <>
@@ -83,8 +85,8 @@ function AnalyticsPage() {
             />
           </div>
           <div className="px-2 pb-3 pt-2">
-            {stats.length ? (
-              <MetricChart stats={stats} metrics={metrics} grain={grain} height={320} />
+            {series.length ? (
+              <MetricChart stats={series} metrics={metrics} grain={grain} height={320} />
             ) : (
               <EmptyState title="No activity in this range" />
             )}
