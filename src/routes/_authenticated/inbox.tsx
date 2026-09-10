@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { dateTime, initials, relative } from "@/lib/format";
+import { initials } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/inbox")({
   head: () => ({
