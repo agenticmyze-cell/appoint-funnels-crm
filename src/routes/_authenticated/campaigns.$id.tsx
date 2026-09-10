@@ -218,9 +218,6 @@ function CampaignDetail() {
                     </p>
                   </div>
                   <StatusBadge status={r.classification} />
-                  <span className="whitespace-nowrap text-[11px] text-muted-foreground">
-                    {relative(r.received_at)}
-                  </span>
                 </button>
               ))}
             </div>
