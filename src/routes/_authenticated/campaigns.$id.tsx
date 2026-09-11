@@ -35,7 +35,7 @@ function CampaignDetail() {
   const { id } = useParams({ from: "/_authenticated/campaigns/$id" });
 
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"steps" | "replies">("steps");
+  const [tab, setTab] = useState<"steps" | "activity" | "replies">("steps");
   const [metrics, setMetrics] = useState<MetricKey[]>([
     "sent",
     "total_opens",
@@ -58,6 +58,25 @@ function CampaignDetail() {
   if (!campaign) return <EmptyState title="Loading campaign…" />;
   const client = clients.find((c) => c.id === campaign.client_id);
   const series = activityWithFallback([campaign], stats, 90);
+  // campaigns without recorded steps still get a report row from their stored totals
+  const stepRows = steps.length
+    ? steps
+    : campaign.emails_sent || campaign.sequence_started || campaign.total_replies
+      ? [
+          {
+            id: `${campaign.id}-step-1`,
+            campaign_id: campaign.id,
+            step_number: 1,
+            subject: campaign.name,
+            sent: campaign.emails_sent || campaign.sequence_started,
+            opened: campaign.open_rate_enabled ? campaign.unique_opens : 0,
+            replied: campaign.total_replies,
+            clicked: campaign.click_rate_enabled ? campaign.unique_clicks : 0,
+            opportunities: campaign.opportunities,
+            created_at: campaign.created_at,
+          },
+        ]
+      : [];
 
 
   return (
@@ -134,7 +153,7 @@ function CampaignDetail() {
         <Section
           title={
             <div className="flex items-center gap-5">
-              {(["steps", "replies"] as const).map((t) => (
+              {(["steps", "activity", "replies"] as const).map((t) => (
                 <button
                   key={t}
                   type="button"
@@ -146,14 +165,18 @@ function CampaignDetail() {
                       : "border-transparent text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  {t === "steps" ? "Step Analytics" : `Replies (${replies.length})`}
+                  {t === "steps"
+                    ? "Step Analytics"
+                    : t === "activity"
+                      ? "Activity"
+                      : `Replies (${replies.length})`}
                 </button>
               ))}
             </div>
           }
         >
           {tab === "steps" ? (
-            steps.length ? (
+            stepRows.length ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-[13px]">
                   <thead>
@@ -167,7 +190,7 @@ function CampaignDetail() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {steps.map((s) => (
+                    {stepRows.map((s) => (
                       <tr key={s.id}>
                         <td className="px-4 py-2.5">
                           <p className="font-semibold text-foreground">Step {s.step_number}</p>
@@ -196,6 +219,41 @@ function CampaignDetail() {
               </div>
             ) : (
               <EmptyState title="No steps configured" />
+            )
+          ) : tab === "activity" ? (
+            series.length ? (
+              <div className="max-h-[420px] overflow-auto">
+                <table className="w-full text-[13px]">
+                  <thead className="sticky top-0 bg-card">
+                    <tr className="border-b border-border text-[11px] uppercase tracking-wide text-muted-foreground">
+                      <th className="px-4 py-2 text-left font-semibold">Day</th>
+                      <th className="px-4 py-2 text-right font-semibold">Sent</th>
+                      <th className="px-4 py-2 text-right font-semibold">Total opens</th>
+                      <th className="px-4 py-2 text-right font-semibold">Unique opens</th>
+                      <th className="px-4 py-2 text-right font-semibold">Clicks</th>
+                      <th className="px-4 py-2 text-right font-semibold">Replies</th>
+                      <th className="px-4 py-2 text-right font-semibold">Opportunities</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {[...series]
+                      .sort((a, b) => b.day.localeCompare(a.day))
+                      .map((d) => (
+                        <tr key={d.id}>
+                          <td className="px-4 py-2.5 font-medium">{shortDate(d.day)}</td>
+                          <td className="num px-4 py-2.5 text-right">{num(d.sent)}</td>
+                          <td className="num px-4 py-2.5 text-right">{num(d.total_opens)}</td>
+                          <td className="num px-4 py-2.5 text-right">{num(d.unique_opens)}</td>
+                          <td className="num px-4 py-2.5 text-right">{num(d.unique_clicks)}</td>
+                          <td className="num px-4 py-2.5 text-right">{num(d.total_replies)}</td>
+                          <td className="num px-4 py-2.5 text-right">{num(d.opportunities)}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <EmptyState title="No activity yet" />
             )
           ) : replies.length ? (
             <div className="divide-y divide-border">
