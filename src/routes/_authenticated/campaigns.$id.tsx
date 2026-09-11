@@ -134,7 +134,7 @@ function CampaignDetail() {
         <Section
           title={
             <div className="flex items-center gap-5">
-              {(["steps", "replies"] as const).map((t) => (
+              {(["steps", "activity", "replies"] as const).map((t) => (
                 <button
                   key={t}
                   type="button"
@@ -146,7 +146,11 @@ function CampaignDetail() {
                       : "border-transparent text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  {t === "steps" ? "Step Analytics" : `Replies (${replies.length})`}
+                  {t === "steps"
+                    ? "Step Analytics"
+                    : t === "activity"
+                      ? "Activity"
+                      : `Replies (${replies.length})`}
                 </button>
               ))}
             </div>
