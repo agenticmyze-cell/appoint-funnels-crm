@@ -8,6 +8,7 @@ import {
   listCampaigns,
   listClients,
   logAudit,
+  updateCampaign,
   upsertCampaign,
   type Campaign,
 } from "@/lib/api";

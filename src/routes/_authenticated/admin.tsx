@@ -146,26 +146,30 @@ function AdminPage() {
   const saveCampaign = useMutation({
     mutationFn: async (values: Record<string, unknown>) => {
       const editingRow = campaignForm && campaignForm !== "new" ? campaignForm : null;
-      const saved = await upsertCampaign({
-        ...(editingRow ? { id: editingRow.id } : {}),
-        name: String(values["name"]),
-        client_id: String(values["client_id"]),
-        status: values["status"] as Campaign["status"],
+      const client_id = String(values["client_id"] ?? "").trim();
+      if (!client_id) throw new Error("Please choose a client for this campaign");
+      const patch = {
+        name: String(values["name"]).trim(),
+        client_id,
+        status: (values["status"] as Campaign["status"]) || "draft",
         description: (values["description"] as string) || null,
         start_date: (values["start_date"] as string) || null,
         end_date: (values["end_date"] as string) || null,
-        progress: Number(values["progress"] ?? 0),
-        metrics_mode: values["metrics_mode"] as Campaign["metrics_mode"],
-        sequence_started: Number(values["sequence_started"] ?? 0),
-        emails_sent: Number(values["emails_sent"] ?? 0),
-        unique_opens: Number(values["unique_opens"] ?? 0),
-        unique_clicks: Number(values["unique_clicks"] ?? 0),
-        total_replies: Number(values["total_replies"] ?? 0),
-        opportunities: Number(values["opportunities"] ?? 0),
-        opportunity_value: Number(values["opportunity_value"] ?? 0),
+        progress: Math.max(0, Math.min(100, Number(values["progress"] ?? 0) || 0)),
+        metrics_mode: (values["metrics_mode"] as Campaign["metrics_mode"]) || "live",
+        sequence_started: Number(values["sequence_started"] ?? 0) || 0,
+        emails_sent: Number(values["emails_sent"] ?? 0) || 0,
+        unique_opens: Number(values["unique_opens"] ?? 0) || 0,
+        unique_clicks: Number(values["unique_clicks"] ?? 0) || 0,
+        total_replies: Number(values["total_replies"] ?? 0) || 0,
+        opportunities: Number(values["opportunities"] ?? 0) || 0,
+        opportunity_value: Number(values["opportunity_value"] ?? 0) || 0,
         open_rate_enabled: !!values["open_rate_enabled"],
         click_rate_enabled: !!values["click_rate_enabled"],
-      });
+      };
+      const saved = editingRow
+        ? await updateCampaign(editingRow.id, patch)
+        : await upsertCampaign(patch);
       await logAudit([
         {
           action: editingRow ? "update" : "create",
@@ -173,10 +177,14 @@ function AdminPage() {
           entity_id: saved.id,
           entity_label: saved.name,
         },
-      ]);
+      ]).catch(() => undefined);
+      return saved;
     },
-    onSuccess: () => {
+    onSuccess: (saved) => {
       qc.invalidateQueries({ queryKey: ["campaigns"] });
+      qc.invalidateQueries({ queryKey: ["campaign"] });
+      qc.invalidateQueries({ queryKey: ["daily"] });
+      if (saved?.id) qc.invalidateQueries({ queryKey: ["campaign", saved.id] });
       qc.invalidateQueries({ queryKey: ["audit"] });
       toast.success("Campaign saved");
     },
