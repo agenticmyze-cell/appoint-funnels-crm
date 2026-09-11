@@ -9,26 +9,35 @@ export type Campaign = Tables<"campaigns">;
  * - live mode    -> derived rates are calculated from stored counters
  * - a disabled rate is never calculated, it renders as "Disabled"
  */
+/** Rate denominator: emails sent, falling back to sequence/lead volume. */
+export function rateBase(c: Campaign): number {
+  return c.emails_sent || c.sequence_started || c.leads_count || 0;
+}
+
 export function openRate(c: Campaign): number | null {
   if (!c.open_rate_enabled) return null;
-  if (!c.emails_sent) return 0;
-  return (c.unique_opens / c.emails_sent) * 100;
+  const base = rateBase(c);
+  if (!base) return 0;
+  return (c.unique_opens / base) * 100;
 }
 
 export function clickRate(c: Campaign): number | null {
   if (!c.click_rate_enabled) return null;
-  if (!c.emails_sent) return 0;
-  return (c.unique_clicks / c.emails_sent) * 100;
+  const base = rateBase(c);
+  if (!base) return 0;
+  return (c.unique_clicks / base) * 100;
 }
 
 export function replyRate(c: Campaign): number {
-  if (!c.emails_sent) return 0;
-  return (c.total_replies / c.emails_sent) * 100;
+  const base = rateBase(c);
+  if (!base) return 0;
+  return (c.total_replies / base) * 100;
 }
 
 export function opportunityRate(c: Campaign): number {
-  if (!c.emails_sent) return 0;
-  return (c.opportunities / c.emails_sent) * 100;
+  const base = rateBase(c);
+  if (!base) return 0;
+  return (c.opportunities / base) * 100;
 }
 
 export function openRateLabel(c: Campaign): string {
