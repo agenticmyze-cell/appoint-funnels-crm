@@ -48,7 +48,7 @@ export function CampaignTable({
             key={c.id}
             className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-3 py-4 shadow-sm transition-colors hover:border-border-strong"
           >
-            <div className="min-w-0 flex-1">
+            <div className="min-w-[220px] flex-1">
               <Link
                 to="/campaigns/$id"
                 params={{ id: c.id }}
@@ -57,7 +57,7 @@ export function CampaignTable({
                 {c.name}
               </Link>
               {showClient && (
-                <span className="text-[12px] text-muted-foreground">{clientName(c.client_id)}</span>
+                <span className="block truncate text-[12px] text-muted-foreground">{clientName(c.client_id)}</span>
               )}
             </div>
 
