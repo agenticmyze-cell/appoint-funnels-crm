@@ -201,6 +201,41 @@ function CampaignDetail() {
             ) : (
               <EmptyState title="No steps configured" />
             )
+          ) : tab === "activity" ? (
+            series.length ? (
+              <div className="max-h-[420px] overflow-auto">
+                <table className="w-full text-[13px]">
+                  <thead className="sticky top-0 bg-card">
+                    <tr className="border-b border-border text-[11px] uppercase tracking-wide text-muted-foreground">
+                      <th className="px-4 py-2 text-left font-semibold">Day</th>
+                      <th className="px-4 py-2 text-right font-semibold">Sent</th>
+                      <th className="px-4 py-2 text-right font-semibold">Total opens</th>
+                      <th className="px-4 py-2 text-right font-semibold">Unique opens</th>
+                      <th className="px-4 py-2 text-right font-semibold">Clicks</th>
+                      <th className="px-4 py-2 text-right font-semibold">Replies</th>
+                      <th className="px-4 py-2 text-right font-semibold">Opportunities</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {[...series]
+                      .sort((a, b) => b.day.localeCompare(a.day))
+                      .map((d) => (
+                        <tr key={d.id}>
+                          <td className="px-4 py-2.5 font-medium">{shortDate(d.day)}</td>
+                          <td className="num px-4 py-2.5 text-right">{num(d.sent)}</td>
+                          <td className="num px-4 py-2.5 text-right">{num(d.total_opens)}</td>
+                          <td className="num px-4 py-2.5 text-right">{num(d.unique_opens)}</td>
+                          <td className="num px-4 py-2.5 text-right">{num(d.unique_clicks)}</td>
+                          <td className="num px-4 py-2.5 text-right">{num(d.total_replies)}</td>
+                          <td className="num px-4 py-2.5 text-right">{num(d.opportunities)}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <EmptyState title="No activity yet" />
+            )
           ) : replies.length ? (
             <div className="divide-y divide-border">
               {replies.map((r) => (
