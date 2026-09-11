@@ -58,6 +58,25 @@ function CampaignDetail() {
   if (!campaign) return <EmptyState title="Loading campaign…" />;
   const client = clients.find((c) => c.id === campaign.client_id);
   const series = activityWithFallback([campaign], stats, 90);
+  // campaigns without recorded steps still get a report row from their stored totals
+  const stepRows = steps.length
+    ? steps
+    : campaign.emails_sent || campaign.sequence_started || campaign.total_replies
+      ? [
+          {
+            id: `${campaign.id}-step-1`,
+            campaign_id: campaign.id,
+            step_number: 1,
+            subject: campaign.name,
+            sent: campaign.emails_sent || campaign.sequence_started,
+            opened: campaign.open_rate_enabled ? campaign.unique_opens : 0,
+            replied: campaign.total_replies,
+            clicked: campaign.click_rate_enabled ? campaign.unique_clicks : 0,
+            opportunities: campaign.opportunities,
+            created_at: campaign.created_at,
+          },
+        ]
+      : [];
 
 
   return (
@@ -171,7 +190,7 @@ function CampaignDetail() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {steps.map((s) => (
+                    {stepRows.map((s) => (
                       <tr key={s.id}>
                         <td className="px-4 py-2.5">
                           <p className="font-semibold text-foreground">Step {s.step_number}</p>

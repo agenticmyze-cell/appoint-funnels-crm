@@ -29,7 +29,7 @@ export function CampaignTable({
   return (
     <div className="space-y-2.5 p-3">
       <div className="hidden items-center gap-3 px-3 text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground lg:flex">
-        <span className="min-w-0 flex-1">Name</span>
+        <span className="min-w-[220px] flex-1">Name</span>
         <span className="w-24">Status</span>
         <span className="w-20">Progress</span>
         <span className="w-20 text-right">Sent</span>
