@@ -127,20 +127,23 @@ function CampaignsPage() {
 
   const save = useMutation({
     mutationFn: async (values: Record<string, unknown>) => {
-      const row = {
-        ...(editing ? { id: editing.id } : {}),
-        name: String(values["name"]),
-        client_id: String(values["client_id"]),
-        status: values["status"] as Campaign["status"],
+      const client_id = String(values["client_id"] ?? "").trim();
+      if (!client_id) throw new Error("Please choose a client for this campaign");
+      const patch = {
+        name: String(values["name"]).trim(),
+        client_id,
+        status: (values["status"] as Campaign["status"]) || "draft",
         description: (values["description"] as string) || null,
         start_date: (values["start_date"] as string) || null,
         end_date: (values["end_date"] as string) || null,
-        progress: Number(values["progress"] ?? 0),
-        metrics_mode: values["metrics_mode"] as Campaign["metrics_mode"],
+        progress: Math.max(0, Math.min(100, Number(values["progress"] ?? 0) || 0)),
+        metrics_mode: (values["metrics_mode"] as Campaign["metrics_mode"]) || "live",
         open_rate_enabled: !!values["open_rate_enabled"],
         click_rate_enabled: !!values["click_rate_enabled"],
       };
-      const saved = await upsertCampaign(row);
+      const saved = editing
+        ? await updateCampaign(editing.id, patch)
+        : await upsertCampaign(patch);
       if (isAdmin) {
         await logAudit([
           {
@@ -149,13 +152,18 @@ function CampaignsPage() {
             entity_id: saved?.id ?? null,
             entity_label: saved?.name ?? String(values["name"]),
           },
-        ]);
+        ]).catch(() => undefined);
       }
+      return saved;
     },
-    onSuccess: () => {
+    onSuccess: (saved) => {
       qc.invalidateQueries({ queryKey: ["campaigns"] });
+      qc.invalidateQueries({ queryKey: ["campaign"] });
+      qc.invalidateQueries({ queryKey: ["daily"] });
+      if (saved?.id) qc.invalidateQueries({ queryKey: ["campaign", saved.id] });
       toast.success("Campaign saved");
     },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Save failed"),
   });
 
   const remove = useMutation({
