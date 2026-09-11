@@ -157,7 +157,7 @@ function CampaignDetail() {
           }
         >
           {tab === "steps" ? (
-            steps.length ? (
+            stepRows.length ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-[13px]">
                   <thead>
