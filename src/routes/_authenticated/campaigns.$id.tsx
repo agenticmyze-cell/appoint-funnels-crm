@@ -35,7 +35,7 @@ function CampaignDetail() {
   const { id } = useParams({ from: "/_authenticated/campaigns/$id" });
 
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"steps" | "replies">("steps");
+  const [tab, setTab] = useState<"steps" | "activity" | "replies">("steps");
   const [metrics, setMetrics] = useState<MetricKey[]>([
     "sent",
     "total_opens",
