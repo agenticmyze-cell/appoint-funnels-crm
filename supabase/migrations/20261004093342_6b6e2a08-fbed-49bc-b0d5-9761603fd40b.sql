@@ -1,0 +1,1 @@
+revoke execute on function public.sync_campaign_replies() from public, anon, authenticated;
