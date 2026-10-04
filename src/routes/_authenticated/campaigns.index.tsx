@@ -145,7 +145,7 @@ function CampaignsPage() {
         description: (values["description"] as string) || null,
         start_date: (values["start_date"] as string) || null,
         end_date: (values["end_date"] as string) || null,
-        progress: Math.max(0, Math.min(100, Number(values["progress"] ?? 0) || 0)),
+        progress: Math.max(0, Math.min(100, values["progress"] === "" || values["progress"] == null ? 100 : Number(values["progress"]) || 0)),
         metrics_mode: (values["metrics_mode"] as Campaign["metrics_mode"]) || "live",
         open_rate_enabled: !!values["open_rate_enabled"],
         click_rate_enabled: !!values["click_rate_enabled"],

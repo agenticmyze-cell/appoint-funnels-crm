@@ -923,6 +923,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      gen_reply_identity: {
+        Args: { n: number }
+        Returns: Record<string, unknown>
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
