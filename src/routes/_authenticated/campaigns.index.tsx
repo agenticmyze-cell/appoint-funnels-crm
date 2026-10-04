@@ -97,7 +97,6 @@ function CampaignsPage() {
       name: "client_id",
       label: "Client",
       type: "select",
-      required: true,
       options: clients.map((c) => ({ value: c.id, label: c.name })),
     },
     {
@@ -122,14 +121,23 @@ function CampaignsPage() {
         { value: "manual", label: "Manual (admin controlled)" },
       ],
     },
+    { name: "sequence_started", label: "Sequence started", type: "number" },
+    { name: "emails_sent", label: "Emails sent", type: "number" },
+    { name: "unique_opens", label: "Opens", type: "number" },
+    { name: "unique_clicks", label: "Clicks", type: "number" },
+    { name: "total_replies", label: "Replies", type: "number" },
+    { name: "opportunities", label: "Opportunities", type: "number" },
+    { name: "opportunity_value", label: "Opportunity value ($)", type: "number" },
     { name: "open_rate_enabled", label: "Open rate metric", type: "switch" },
     { name: "click_rate_enabled", label: "Click rate metric", type: "switch" },
   ];
 
   const save = useMutation({
     mutationFn: async (values: Record<string, unknown>) => {
-      const client_id = String(values["client_id"] ?? "").trim();
-      if (!client_id) throw new Error("Please choose a client for this campaign");
+      const client_id =
+        String(values["client_id"] ?? "").trim() || editing?.client_id || clientId || clients[0]?.id || "";
+      if (!client_id) throw new Error("Add a client first");
+      const n = (k: string) => Math.max(0, Number(values[k] ?? 0) || 0);
       const patch = {
         name: String(values["name"]).trim(),
         client_id,
@@ -141,6 +149,14 @@ function CampaignsPage() {
         metrics_mode: (values["metrics_mode"] as Campaign["metrics_mode"]) || "live",
         open_rate_enabled: !!values["open_rate_enabled"],
         click_rate_enabled: !!values["click_rate_enabled"],
+        sequence_started: n("sequence_started"),
+        emails_sent: n("emails_sent"),
+        unique_opens: n("unique_opens"),
+        total_opens: Math.max(n("unique_opens"), editing?.total_opens ?? 0),
+        unique_clicks: n("unique_clicks"),
+        total_replies: n("total_replies"),
+        opportunities: n("opportunities"),
+        opportunity_value: n("opportunity_value"),
       };
       const saved = editing
         ? await updateCampaign(editing.id, patch)
@@ -161,6 +177,7 @@ function CampaignsPage() {
       qc.invalidateQueries({ queryKey: ["campaigns"] });
       qc.invalidateQueries({ queryKey: ["campaign"] });
       qc.invalidateQueries({ queryKey: ["daily"] });
+      qc.invalidateQueries({ queryKey: ["replies"] });
       if (saved?.id) qc.invalidateQueries({ queryKey: ["campaign", saved.id] });
       toast.success("Campaign saved");
     },
