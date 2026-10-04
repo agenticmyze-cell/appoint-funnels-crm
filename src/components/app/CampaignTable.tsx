@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { MoreHorizontal, Play } from "lucide-react";
 import type { Campaign, Client } from "@/lib/api";
 import { money, num, pct } from "@/lib/format";
-import { clickRate, openRate, replyRate } from "@/lib/metrics";
+import { clickRate, replyRate } from "@/lib/metrics";
 import { ProgressCell, StatusBadge } from "./primitives";
 import {
   DropdownMenu,
@@ -13,8 +13,6 @@ import {
 
 export function CampaignTable({
   campaigns,
-  clients,
-  showClient = true,
   onEdit,
   onDelete,
 }: {
@@ -24,31 +22,27 @@ export function CampaignTable({
   onEdit?: ((c: Campaign) => void) | undefined;
   onDelete?: ((c: Campaign) => void) | undefined;
 }) {
-  const clientName = (id: string) => clients?.find((c) => c.id === id)?.name ?? "—";
-
   return (
     <div className="space-y-2.5 p-3">
       <div className="hidden items-center gap-3 px-3 text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground lg:flex">
-        <span className="min-w-[220px] flex-1">Name</span>
+        <span className="min-w-0 flex-1">Name</span>
         <span className="w-24">Status</span>
         <span className="w-20">Progress</span>
         <span className="w-20 text-right">Sent</span>
-        <span className="w-28 text-right">Open</span>
-        <span className="w-28 text-right">Click</span>
+        <span className="w-20 text-right">Click</span>
         <span className="w-28 text-right">Replied</span>
         <span className="w-32 text-right">Opportunities</span>
         <span className="w-16" />
       </div>
 
       {campaigns.map((c) => {
-        const open = openRate(c);
         const click = clickRate(c);
         return (
           <div
             key={c.id}
             className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-3 py-4 shadow-sm transition-colors hover:border-border-strong"
           >
-            <div className="min-w-[220px] flex-1">
+            <div className="min-w-0 flex-1">
               <Link
                 to="/campaigns/$id"
                 params={{ id: c.id }}
@@ -56,11 +50,7 @@ export function CampaignTable({
               >
                 {c.name}
               </Link>
-              {showClient && (
-                <span className="block truncate text-[12px] text-muted-foreground">{clientName(c.client_id)}</span>
-              )}
             </div>
-
             <div className="w-24">
               <StatusBadge status={c.status} />
             </div>
@@ -68,34 +58,15 @@ export function CampaignTable({
               <ProgressCell value={c.progress} />
             </div>
             <div className="num w-20 text-right text-[13px] font-medium">{num(c.emails_sent)}</div>
-            <div className="num w-28 text-right text-[13px] font-medium">
-              {open === null ? (
-                <span className="text-muted-foreground">Disabled</span>
-              ) : (
-                <>
-                  {num(c.unique_opens)} <span className="text-muted-foreground">| {pct(open)}</span>
-                </>
-              )}
+            <div className={`num w-20 text-right text-[13px] font-medium ${click === null ? "text-muted-foreground" : ""}`}>
+              {click === null ? "—" : pct(click)}
             </div>
             <div className="num w-28 text-right text-[13px] font-medium">
-              {click === null ? (
-                <span className="text-muted-foreground">Disabled</span>
-              ) : (
-                <>
-                  {num(c.unique_clicks)}{" "}
-                  <span className="text-muted-foreground">| {pct(click)}</span>
-                </>
-              )}
-            </div>
-            <div className="num w-28 text-right text-[13px] font-medium">
-              {num(c.total_replies)}{" "}
-              <span className="text-muted-foreground">| {pct(replyRate(c))}</span>
+              {num(c.total_replies)} <span className="text-muted-foreground">| {pct(replyRate(c))}</span>
             </div>
             <div className="num w-32 text-right text-[13px] font-medium">
-              {num(c.opportunities)}{" "}
-              <span className="text-muted-foreground">| {money(c.opportunity_value)}</span>
+              {num(c.opportunities)} <span className="text-muted-foreground">| {money(c.opportunity_value)}</span>
             </div>
-
             <div className="flex w-16 items-center justify-end gap-1">
               <Link
                 to="/campaigns/$id"
