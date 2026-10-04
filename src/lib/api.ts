@@ -63,10 +63,16 @@ export const getLead = async (id: string): Promise<Lead> =>
   unwrap(await supabase.from("leads").select("*").eq("id", id).single());
 
 export const listReplies = async (opts: { clientId?: string | undefined; campaignId?: string } = {}): Promise<Reply[]> => {
-  let q = supabase.from("replies").select("*").order("received_at", { ascending: false });
-  if (opts.clientId) q = q.eq("client_id", opts.clientId);
-  if (opts.campaignId) q = q.eq("campaign_id", opts.campaignId);
-  return unwrap(await q.limit(300));
+  const out: Reply[] = [];
+  for (let from = 0; from < 10000; from += 1000) {
+    let q = supabase.from("replies").select("*").order("received_at", { ascending: false });
+    if (opts.clientId) q = q.eq("client_id", opts.clientId);
+    if (opts.campaignId) q = q.eq("campaign_id", opts.campaignId);
+    const page = unwrap(await q.range(from, from + 999)) as Reply[];
+    out.push(...page);
+    if (page.length < 1000) break;
+  }
+  return out;
 };
 
 export const listReplyMessages = async (replyId: string): Promise<Tables<"reply_messages">[]> =>
