@@ -57,7 +57,7 @@ export function CampaignTable({
             <div className="w-20">
               <ProgressCell value={c.progress} />
             </div>
-            <div className="num w-20 text-right text-[13px] font-medium">{num(c.emails_sent)}</div>
+            <div className="num w-20 text-right text-[13px] font-medium">{num(c.emails_sent || c.sequence_started)}</div>
             <div className={`num w-20 text-right text-[13px] font-medium ${click === null ? "text-muted-foreground" : ""}`}>
               {click === null ? "—" : pct(click)}
             </div>

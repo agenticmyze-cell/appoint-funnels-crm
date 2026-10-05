@@ -23,7 +23,8 @@ import { useSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
 import { initials, relative } from "@/lib/format";
 import { NAV_ITEMS } from "./nav";
-const brandLogo = { url: "/brand-logo.png" };
+import { BRAND_LOGO } from "@/lib/brand-logo";
+const brandLogo = { url: BRAND_LOGO };
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
