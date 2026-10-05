@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-const brandLogo = { url: "/brand-logo.png" };
+import { BRAND_LOGO } from "@/lib/brand-logo";
+const brandLogo = { url: BRAND_LOGO };
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
