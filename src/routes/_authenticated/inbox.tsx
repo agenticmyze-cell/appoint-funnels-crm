@@ -106,7 +106,10 @@ function InboxPage() {
   }, [search.reply]);
 
   useEffect(() => {
-    if (!selectedId && list.length) setSelectedId(list[0]!.id);
+    // Auto-open the first conversation whenever the selection is missing or
+    // stale (e.g. after switching campaign filters), so the thread pane is
+    // never left on the empty "Select a conversation" state.
+    if (list.length && !list.some((r) => r.id === selectedId)) setSelectedId(list[0]!.id);
   }, [list, selectedId]);
 
   const selected = list.find((r) => r.id === selectedId) ?? null;
